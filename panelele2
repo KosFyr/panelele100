@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyStudyPlan - Πανελλήνιες</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            width: 450px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            color: #4a00e0;
+            font-size: 28px;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background: linear-gradient(90deg, #8e2de2, #4a00e0);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .coming-soon-btn {
+            background: #d3d3d3;
+            color: #666;
+            cursor: not-allowed;
+        }
+        .coming-soon-btn:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        #timer {
+            color: #ffcc00;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 15px 0;
+            background: rgba(255, 204, 0, 0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        #progress {
+            font-size: 18px;
+            color: #4a00e0;
+            margin-bottom: 15px;
+        }
+        .answer-btn {
+            width: 120px;
+            margin: 10px;
+        }
+        .correct {
+            background: #28a745 !important;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        }
+        .wrong {
+            background: #dc3545 !important;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+        }
+        #question {
+            font-size: 18px;
+            margin: 20px 0;
+            line-height: 1.4;
+        }
+        #next-btn {
+            background: #ffcc00;
+            color: #333;
+        }
+        #feedback {
+            font-size: 20px;
+            color: #4a00e0;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <!-- Αρχικό Μενού -->
+        <div id="home-screen">
+            <h1>MyStudyPlan</h1>
+            <button onclick="navigate('math')">Μαθηματικά</button>
+            <button class="coming-soon-btn" onclick="navigate('aoth')">ΑΟΘ</button>
+            <button class="coming-soon-btn" onclick="navigate('aepp')">ΑΕΠΠ</button>
+        </div>
+
+        <!-- Μενού Μαθηματικών -->
+        <div id="math-menu" style="display: none;">
+            <h1>Μαθηματικά</h1>
+            <button onclick="startQuiz()">Σωστό / Λάθος</button>
+            <button class="coming-soon-btn" onclick="navigate('theorems')">Θεωρήματα</button>
+            <button class="coming-soon-btn" onclick="navigate('proofs')">Αποδείξεις</button>
+            <button onclick="navigate('home')">Επιστροφή</button>
+        </div>
+
+        <!-- Coming Soon Σελίδα -->
+        <div id="coming-soon" style="display: none;">
+            <h1>Coming Soon</h1>
+            <button onclick="navigate('home')">Επιστροφή</button>
+        </div>
+
+        <!-- Quiz Σωστό / Λάθος -->
+        <div id="quiz-screen" style="display: none;">
+            <h1>Σωστό / Λάθος</h1>
+            <div id="timer">Χρόνος: 120 δευτ.</div>
+            <div id="progress"></div>
+            <p id="question"></p>
+            <button class="answer-btn" onclick="answer(true)">ΣΩΣΤΟ</button>
+            <button class="answer-btn" onclick="answer(false)">ΛΑΘΟΣ</button>
+            <button id="next-btn" style="display: none;" onclick="nextQuestion()">Επόμενη Ερώτηση</button>
+        </div>
+
+        <!-- Ολοκλήρωση Quiz -->
+        <div id="results-screen" style="display: none;">
+            <h1>Αποτελέσματα</h1>
+            <p id="score"></p>
+            <p id="feedback"></p>
+            <button onclick="startQuiz()">Παίξε Ξανά</button>
+            <button onclick="navigate('home')">Επιστροφή στο Αρχικό Μενού</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { text: "Κάθε κατακόρυφη ευθεία έχει το πολύ ένα κοινό σημείο με τη γραφική παράσταση μιας συνάρτησης f.", answer: true },
+            { text: "Η γραφική παράσταση της συνάρτησης -f είναι συμμετρική, ως προς τον άξονα x'x, της γραφικής παράστασης της f.", answer: true },
+            { text: "Η γραφική παράσταση της συνάρτησης f(x) = √|x|, x ∈ ℝ έχει άξονα συμμετρίας τον y'y.", answer: true },
+            { text: "Αν f, g είναι δύο συναρτήσεις με πεδία ορισμού A, B αντίστοιχα, τότε η g∘f ορίζεται αν f(A) ∩ B ≠ ∅.", answer: true },
+            { text: "Αν για δύο συναρτήσεις f, g ορίζονται οι συναρτήσεις f∘g και g∘f, τότε ισχύει πάντοτε ότι f∘g = g∘f.", answer: false },
+            { text: "Αν για δύο συναρτήσεις f, g ορίζονται οι f∘g και g∘f, τότε είναι υποχρεωτικά f∘g ≠ g∘f.", answer: false },
+            { text: "Το πεδίο ορισμού της g∘f αποτελείται από όλα τα στοιχεία x του πεδίου ορισμού της f, για τα οποία το f(x) ανήκει στο πεδίο ορισμού της g.", answer: true },
+            { text: "Αν f, g, h είναι τρεις συναρτήσεις και ορίζεται η h∘(g∘f) τότε ορίζεται και η (h∘g)∘f και ισχύει h∘(g∘f) = (h∘g)∘f.", answer: true },
+            { text: "Μια συνάρτηση f με πεδίο ορισμού A λέμε ότι παρουσιάζει (ολικό) ελάχιστο στο x₀ ∈ A, όταν f(x) ≥ f(x₀) για κάθε x ∈ A.", answer: true },
+            { text: "Μία συνάρτηση f λέγεται γνησίως αύξουσα σε ένα διάστημα Δ του πεδίου ορισμού της, αν υπάρχουν x₁, x₂ ∈ Δ με x₁ < x₂ τέτοια, ώστε f(x₁) < f(x₂).", answer: false },
+            { text: "Κάθε συνάρτηση, που είναι 1-1 στο πεδίο ορισμού της, είναι γνησίως μονότονη.", answer: false },
+            { text: "Μια συνάρτηση f: A → ℝ λέγεται συνάρτηση 1-1, όταν για οποιαδήποτε x₁, x₂ ∈ A ισχύει η συνεπαγωγή: αν x₁ ≠ x₂, τότε f(x₁) ≠ f(x₂).", answer: true },
+            { text: "Μία συνάρτηση f: A → ℝ είναι συνάρτηση 1-1, αν και μόνο αν για οποιαδήποτε x₁, x₂ ∈ A ισχύει η συνεπαγωγή: αν x₁ = x₂, τότε f(x₁) = f(x₂).", answer: false },
+            { text: "Αν μια συνάρτηση f είναι γνησίως μονότονη σε ένα διάστημα Δ, τότε είναι και 1-1 στο διάστημα αυτό.", answer: true },
+            { text: "Υπάρχουν συναρτήσεις που είναι 1-1, αλλά δεν είναι γνησίως μονότονες.", answer: true },
+            { text: "Μια συνάρτηση f είναι 1-1, αν και μόνο αν για κάθε στοιχείο y του συνόλου τιμών της η εξίσωση f(x) = y έχει ακριβώς μία λύση ως προς x.", answer: true },
+            { text: "Αν η f έχει αντίστροφη συνάρτηση f⁻¹ και η γραφική παράσταση της f έχει ένα κοινό σημείο A με την ευθεία y = x, τότε το σημείο A ανήκει στη γραφική παράσταση της f⁻¹.", answer: true },
+            { text: "Αν η συνάρτηση f: A → ℝ είναι 1-1, τότε ισχύει f(f⁻¹(x)) = x, x ∈ A.", answer: true },
+            { text: "Αν μια συνάρτηση f: A → ℝ είναι 1-1, τότε για την αντίστροφη συνάρτηση f⁻¹ ισχύει: f(f⁻¹(x)) = x, x ∈ A και f⁻¹(f(y)) = y, y ∈ f(A).", answer: true },
+            { text: "Οι γραφικές παραστάσεις C και C' των συναρτήσεων f και f⁻¹ είναι συμμετρικές ως προς την ευθεία y = x που διχοτομεί τις γωνίες xOy και x'Oy'.", answer: true },
+            { text: "Αν ένα σημείο M(α, β) ανήκει στη γραφική παράσταση μιας αντιστρέψιμης συνάρτησης f, τότε το σημείο M'(β, α) ανήκει στη γραφική παράσταση της f⁻¹.", answer: true },
+            { text: "Αν μια συνάρτηση f είναι 1-1 στο πεδίο ορισμού της, τότε υπάρχουν σημεία της γραφικής παράστασης της f με την ίδια τεταγμένη.", answer: false },
+            { text: "Η συνάρτηση f(x) = ημx με x ∈ ℝ έχει μία μόνο θέση ολικού μεγίστου.", answer: false },
+            { text: "Αν μια συνάρτηση f: ℝ → ℝ είναι 1-1, τότε κάθε οριζόντια ευθεία τέμνει τη γραφική παράσταση της f το πολύ σε ένα σημείο.", answer: true },
+            { text: "Αν οι συναρτήσεις f και g έχουν πεδίο ορισμού το [0, 1] και σύνολο τιμών το [2, 3], τότε ορίζεται η f∘g με πεδίο ορισμού το [0, 1] και σύνολο τιμών το [2, 3].", answer: false },
+            { text: "lim_{x→x₀} f(x) = 0, αν και μόνο αν lim_{x→x₀⁻} f(x) = lim_{x→x₀⁺} f(x).", answer: false },
+            { text: "Έστω μια συνάρτηση f ορισμένη σ’ ένα σύνολο της μορφής (α, x₀) ∪ (x₀, β) και ένας πραγματικός αριθμός. Τότε ισχύει η ισοδυναμία: lim_{x→x₀} f(x) = lim_{x→x₀} (-f(x)) = 0.", answer: true },
+            { text: "Αν υπάρχει το όριο της συνάρτησης f στο x₀ και lim_{x→x₀} f(x) = 0 τότε f(x₀) = 0.", answer: true },
+            { text: "Αν lim_{x→x₀} f(x) > 0 τότε f(x) > 0 κοντά στο x₀.", answer: true },
+            { text: "Αν lim_{x→x₀} f(x) < 0, τότε f(x) < 0 κοντά στο x₀.", answer: true },
+            { text: "Αν οι συναρτήσεις έχουν όριο στο x₀ και ισχύει f(x) ≤ g(x) κοντά στο x₀, τότε lim_{x→x₀} f(x) ≤ lim_{x→x₀} g(x).", answer: true },
+            { text: "Για κάθε ζεύγος συναρτήσεων f, g για τις οποίες υπάρχουν τα όρια lim_{x→x₀} f(x), lim_{x→x₀} g(x) και f(x) < g(x) για κάθε x κοντά στο x₀, ισχύει lim_{x→x₀} f(x) < lim_{x→x₀} g(x).", answer: false },
+            { text: "Αν υπάρχουν το lim_{x→x₀} (f(x) + g(x)), τότε κατ’ ανάγκη υπάρχουν τα lim_{x→x₀} f(x) και lim_{x→x₀} g(x).", answer: false },
+            { text: "Για κάθε ζεύγος συναρτήσεων f: ℝ → ℝ και g: ℝ → ℝ, αν lim_{x→x₀} f(x) = 0 και lim_{x→x₀} g(x) = +∞, τότε lim_{x→x₀} [f(x) · g(x)] = 0.", answer: false },
+            { text: "Αν υπάρχει το όριο της f στο x₀ τότε lim_{x→x₀} (f(x))^k = (lim_{x→x₀} f(x))^k εφόσον f(x) ≥ 0 κοντά στο x₀ με k ∈ ℕ και k ≥ 2.", answer: true },
+            { text: "Αν lim_{x→x₀} f(x) = 0 και f(x) > 0 κοντά στο x₀, τότε lim_{x→x₀} 1/f(x) = +∞.", answer: true },
+            { text: "Αν lim_{x→x₀} f(x) = +∞ ή -∞, τότε lim_{x→x₀} 1/f(x) = 0.", answer: true },
+            { text: "Αν lim_{x→x₀} f(x) = -∞, τότε lim_{x→x₀} (-f(x)) = +∞.", answer: true },
+            { text: "Αν είναι lim_{x→x₀} f(x) = +∞, τότε f(x) < 0 κοντά στο x₀.", answer: false },
+            { text: "Αν lim_{x→x₀} f(x) = -∞, τότε f(x) > 0 κοντά στο x₀.", answer: false },
+            { text: "Αν lim_{x→x₀} f(x) = -∞ τότε lim_{x→x₀} |f(x)| = +∞.", answer: true },
+            { text: "lim_{x→0⁺} 1/x^(2ν+1) = +∞ για κάθε ν ∈ ℕ.", answer: false },
+            { text: "Έστω μια συνάρτηση f που είναι ορισμένη σε ένα σύνολο της μορφής (α, x₀) ∪ (x₀, β). Ισχύει η ισοδυναμία lim_{x→x₀} f(x) = -∞ ⇔ (lim_{x→x₀⁻} f(x) = lim_{x→x₀⁺} f(x) = -∞).", answer: true },
+            { text: "Αν α > 1 τότε lim_{x→-∞} α^x = 0.", answer: true },
+            { text: "Αν 0 < α < 1, τότε lim_{x→-∞} α^x = +∞.", answer: true },
+            { text: "lim_{x→-∞} e^x = -∞", answer: false },
+            { text: "lim_{x→0} (συνx - 1)/x = 1", answer: false },
+            { text: "Ισχύει ότι: lim_{x→+∞} ημx/x = 1", answer: false },
+            { text: "Ισχύει ότι: lim_{x→0} ημx/x = 0", answer: false },
+            { text: "Ισχύει ότι: ημx ≤ x για κάθε x ∈ ℝ", answer: true },
+            { text: "Ισχύει lim_{x→0} (1 - συνx) = 0", answer: true },
+            { text: "Αν η συνάρτηση f είναι συνεχής στο x₀ και η συνάρτηση g είναι συνεχής στο x₀, τότε η σύνθεση τους g∘f είναι συνεχής στο x₀.", answer: false },
+            { text: "Αν η συνάρτηση f είναι ορισμένη στο [α, β] και συνεχής στο (α, β), τότε η f παίρνει πάντοτε στο [α, β] μία μέγιστη τιμή.", answer: false },
+            { text: "Αν μια συνάρτηση f είναι συνεχής σε ένα διάστημα Δ και δε μηδενίζεται σε αυτό, τότε αυτή ή είναι θετική για κάθε x ∈ Δ ή είναι αρνητική για κάθε x ∈ Δ, δηλαδή διατηρεί σταθερό πρόσημο στο Δ.", answer: true },
+            { text: "Η εικόνα f(Δ) ενός διαστήματος Δ μέσω μιας συνεχούς και μη σταθερής συνάρτησης f είναι διάστημα.", answer: true },
+            { text: "Αν η f είναι συνεχής στο [α, β] με f(α) < 0 και υπάρχει ξ ∈ (α, β) ώστε f(ξ) = 0, τότε κατ’ ανάγκη f(β) > 0.", answer: false },
+            { text: "Αν η συνάρτηση f είναι συνεχής στο διάστημα [α, β] και υπάρχει x₀ ∈ (α, β) τέτοιο ώστε f(x₀) = 0, τότε κατ’ ανάγκη θα ισχύει f(α) < f(β) < 0.", answer: false },
+            { text: "Μια συνεχής συνάρτηση f διατηρεί πρόσημο σε καθένα από τα διαστήματα στα οποία οι διαδοχικές ρίζες της f χωρίζουν το πεδίο ορισμού της.", answer: true },
+            { text: "Αν μια συνάρτηση f είναι συνεχής σε ένα διάστημα Δ και δεν μηδενίζεται σε αυτό, τότε η f διατηρεί πρόσημο στο διάστημα Δ.", answer: true },
+            { text: "Αν μια συνάρτηση f είναι γνησίως φθίνουσα και συνεχής σε ένα ανοικτό διάστημα (α, β), τότε το σύνολο τιμών της στο διάστημα αυτό είναι το διάστημα (A, B), όπου A = lim_{x→α⁺} f(x) και B = lim_{x→β⁻} f(x).", answer: false },
+            { text: "Αν η f είναι συνεχής στο [α, β], τότε η f παίρνει στο [α, β] μια μέγιστη τιμή M και μια ελάχιστη τιμή m.", answer: true },
+            { text: "Κάθε συνάρτηση f συνεχής σε ένα σημείο του πεδίου ορισμού της είναι και παραγωγίσιμη στο σημείο αυτό.", answer: false },
+            { text: "Αν μια συνάρτηση f δεν είναι συνεχής στο x₀, τότε η f δεν είναι παραγωγίσιμη στο x₀.", answer: true },
+            { text: "Αν η f είναι παραγωγίσιμη στο x₀, τότε η f' είναι πάντοτε συνεχής στο x₀.", answer: false },
+            { text: "Αν η f έχει δεύτερη παράγωγο στο x₀, τότε η f' είναι συνεχής στο x₀.", answer: true },
+            { text: "(συνx)' = ημx, x ∈ ℝ", answer: false },
+            { text: "Ισχύει ο τύπος (x³)' = 3x⁻¹, για κάθε x ∈ ℝ", answer: false },
+            { text: "Για κάθε x ∈ ℝ1=R-{x | συνx = 0} ισχύει: (εφx)' = -1/(συν²x)", answer: false },!εχει γινει αλλαγη
+            { text: "(σφx)' = 1/(ημ²x), x ∈ ℝ - {x | ημx ≠ 0}", answer: false },!ειχε μπει -1 καταλαθος το αλλαξα σε 1
+            { text: "Αν f(x) = ln|x| για κάθε x ≠ 0, τότε f'(x) = 1/|x| για κάθε x ≠ 0.", answer: false },
+            { text: "(ln|x|)' = -1/x, για κάθε x < 0", answer: false },
+            { text: "Αν f(x) = α^x, α > 0, τότε ισχύει (α^x)' = xα^(x-1).", answer: false },
+            { text: "Αν οι συναρτήσεις f, g είναι παραγωγίσιμες στο x₀, τότε η συνάρτηση f·g είναι παραγωγίσιμη στο x₀ και ισχύει: (f·g)'(x₀) = f'(x₀)g'(x₀).", answer: false },
+            { text: "Για δύο οποιεσδήποτε συναρτήσεις f, g παραγωγίσιμες στο x₀ ισχύει: (f·g)'(x₀) = f(x₀)g'(x₀) - f'(x₀)g(x₀).", answer: false },
+            { text: "Αν οι συναρτήσεις f και g είναι παραγωγίσιμες στο x₀ και g(x₀) ≠ 0 τότε και η συνάρτηση f/g είναι παραγωγίσιμη στο x₀ και ισχύει: (f/g)'(x₀) = [f'(x₀)g(x₀) - f(x₀)g'(x₀)] / [g(x₀)]².", answer: true },
+            { text: "Για κάθε συνεχή συνάρτηση f: [α, β] → ℝ, η οποία είναι παραγωγίσιμη στο (α, β), αν f(α) = f(β), τότε υπάρχει ακριβώς ένα ξ ∈ (α, β) τέτοιο ώστε f'(ξ) = 0.", answer: false },
+            { text: "Αν η συνάρτηση f είναι παραγωγίσιμη στο ℝ και δεν είναι αντιστρέψιμη, τότε υπάρχει κλειστό διάστημα [α, β], στο οποίο η f ικανοποιεί τις προϋποθέσεις του θεωρήματος Rolle.", answer: true },
+            { text: "Κάθε συνάρτηση f, για την οποία ισχύει f'(x) = 0 για κάθε x ∈ (α, x₀) ∪ (x₀, β), είναι σταθερή στο (α, x₀) ∪ (x₀, β).", answer: false },
+            { text: "Έστω δύο συναρτήσεις f, g ορισμένες σε ένα διάστημα Δ. Αν οι f, g είναι συνεχείς στο Δ και f'(x) = g'(x) για κάθε εσωτερικό σημείο x του Δ τότε ισχύει f(x) = g(x) για κάθε x ∈ Δ.", answer: false },
+            { text: "Έστω μια συνάρτηση f συνεχής σε ένα διάστημα Δ και παραγωγίσιμη στο εσωτερικό του Δ. Αν η f είναι γνησίως αύξουσα στο Δ, τότε η παράγωγός της δεν είναι υποχρεωτικά θετική στο εσωτερικό του Δ.", answer: true },
+            { text: "Έστω μια συνάρτηση f, η οποία είναι συνεχής σε ένα διάστημα Δ. Αν f'(x) > 0 σε κάθε εσωτερικό σημείο x του Δ, τότε η f είναι γνησίως φθίνουσα σε όλο το Δ.", answer: false },
+            { text: "Έστω f μια συνάρτηση συνεχής σ’ ένα διάστημα Δ και παραγωγίσιμη σε κάθε εσωτερικό x του Δ. Αν η συνάρτηση f είναι γνησίως αύξουσα στο Δ τότε f'(x) > 0 σε κάθε εσωτερικό σημείο x του Δ.", answer: false },
+            { text: "Έστω συνάρτηση f συνεχής σε ένα διάστημα Δ και παραγωγίσιμη σε κάθε εσωτερικό σημείο του Δ. Αν η συνάρτηση f είναι γνησίως φθίνουσα στο Δ, τότε η παράγωγός της είναι υποχρεωτικά αρνητική στο εσωτερικό του Δ.", answer: false },
+            { text: "Έστω μια συνάρτηση f ορισμένη σε ένα διάστημα Δ και x₀ ένα εσωτερικό σημείο του Δ. Αν η f είναι παραγωγίσιμη στο x₀ και f'(x₀) = 0, τότε η f παρουσιάζει υποχρεωτικά τοπικό ακρότατο στο x₀.", answer: false },
+            { text: "Έστω συνάρτηση f ορισμένη και παραγωγίσιμη στο διάστημα [α, β] και σημείο x₀ ∈ [α, β] στο οποίο η f παρουσιάζει τοπικό μέγιστο. Τότε πάντα ισχύει ότι f'(x₀) = 0.", answer: false },
+            { text: "Για κάθε συνάρτηση f: ℝ → ℝ που είναι παραγωγίσιμη και δεν παρουσιάζει ακρότατα, ισχύει f'(x) ≠ 0 για κάθε x ∈ ℝ.", answer: false },
+            { text: "Δίνεται ότι η συνάρτηση f παραγωγίζεται στο ℝ και ότι η γραφική της παράσταση είναι πάνω από τον άξονα x'x. Αν υπάρχει κάποιο σημείο A(x₀, f(x₀)) της C_f, του οποίου η απόσταση από τον άξονα x'x είναι μέγιστη (ή ελάχιστη), τότε σε αυτό το σημείο η εφαπτομένη της C_f είναι οριζόντια.", answer: true },
+            { text: "Αν μια συνάρτηση f παρουσιάζει (ολικό) μέγιστο, τότε αυτό θα είναι το μεγαλύτερο από τα τοπικά της μέγιστα.", answer: true },
+            { text: "Ένα τοπικό μέγιστο μιας συνάρτησης f μπορεί να είναι μικρότερο από ένα τοπικό ελάχιστο της f.", answer: true },
+            { text: "Τα εσωτερικά σημεία του διαστήματος Δ, στα οποία η f δεν παραγωγίζεται ή η παράγωγός της είναι ίση με το 0, λέγονται κρίσιμα σημεία της f στο διάστημα Δ.", answer: true },
+            { text: "Έστω μία συνάρτηση f παραγωγίσιμη σ' ένα διάστημα (α, β), με εξαίρεση ίσως ένα σημείο του x₀, στο οποίο όμως η f είναι συνεχής. Αν f'(x) > 0 στο (α, x₀) και f'(x) < 0 στο (x₀, β), τότε το x₀ είναι τοπικό ελάχιστο της f.", answer: false },
+            { text: "Έστω μία συνάρτηση f συνεχής σε ένα διάστημα Δ και δύο φορές παραγωγίσιμη στο εσωτερικό του Δ. Αν f''(x) > 0 για κάθε εσωτερικό σημείο x του Δ, τότε η f είναι κυρτή στο Δ.", answer: true },
+            { text: "Αν μια συνάρτηση f είναι κυρτή σε ένα διάστημα Δ, τότε η εφαπτομένη της γραφικής παράστασης της f σε κάθε σημείο του Δ βρίσκεται «πάνω» από τη γραφική της παράσταση.", answer: false },
+            { text: "Αν μια συνάρτηση f είναι κοίλη σ’ ένα διάστημα Δ, τότε η εφαπτομένη της γραφικής παράστασης της f σε κάθε σημείο του Δ βρίσκεται κάτω από τη γραφική παράσταση, με εξαίρεση το σημείο επαφής.", answer: false },
+            { text: "Αν μια συνάρτηση f είναι δύο φορές παραγωγίσιμη στο ℝ και στρέφει τα κοίλα προς τα πάνω, τότε κατ’ ανάγκη θα ισχύει f''(x) > 0 για κάθε x ∈ ℝ.", answer: false },
+            { text: "Έστω μια συνάρτηση f συνεχής σε ένα διάστημα Δ και δύο φορές παραγωγίσιμη στο εσωτερικό του Δ. Αν η f είναι κυρτή στο Δ, τότε υποχρεωτικά f''(x) > 0 για κάθε εσωτερικό σημείο του Δ.", answer: false },
+            { text: "Έστω μια συνάρτηση f παραγωγίσιμη σ’ ένα διάστημα (α, β) με εξαίρεση ίσως ένα σημείο του x₀. Αν η f είναι κυρτή στο (α, x₀) και κοίλη στο (x₀, β) ή αντιστρόφως, τότε το σημείο A(x₀, f(x₀)) είναι υποχρεωτικά σημείο καμπής της γραφικής παράστασης της f.", answer: false },
+            { text: "Υπάρχει πολυωνυμική συνάρτηση βαθμού ν ≥ 2, η οποία έχει ασύμπτωτη.", answer: false },
+            { text: "Η γραφική παράσταση μιας συνάρτησης f: ℝ → ℝ μπορεί να τέμνει μια ασύμπτωτή της.", answer: true }
+        ];
+
+        let currentScreen = 'home';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 120; // 2 λεπτά ανά ερώτηση
+        let shuffledQuestions = [];
+
+        function navigate(screen) {
+            console.log("Navigating to: " + screen); // Debugging
+            document.querySelectorAll('.container > div').forEach(div => div.style.display = 'none');
+            document.getElementById(screen === 'home' ? 'home-screen' : 
+                                   screen === 'math' ? 'math-menu' : 
+                                   screen === 'quiz' ? 'quiz-screen' : 
+                                   screen === 'results' ? 'results-screen' : 'coming-soon').style.display = 'block';
+            currentScreen = screen;
+        }
+
+        function startQuiz() {
+            shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+            score = 0;
+            timeLeft = 120;
+            navigate('quiz');
+            showQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = `Χρόνος: ${timeLeft} δευτ.`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    nextQuestion(); // Προχωρά στην επόμενη ερώτηση αν τελειώσει ο χρόνος
+                }
+            }, 1000);
+        }
+
+        function showQuestion() {
+            const question = shuffledQuestions[currentQuestionIndex];
+            document.getElementById('question').textContent = question.text;
+            document.getElementById('progress').textContent = `Ερώτηση ${currentQuestionIndex + 1}/99`;
+            document.getElementById('next-btn').style.display = 'none';
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('correct', 'wrong');
+            });
+        }
+
+        function answer(userAnswer) {
+            clearInterval(timer); // Σταματά ο χρόνος όταν απαντά
+            const question = shuffledQuestions[currentQuestionIndex];
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(btn => btn.disabled = true);
+            if (userAnswer === question.answer) {
+                buttons[userAnswer ? 0 : 1].classList.add('correct');
+                score++;
+            } else {
+                buttons[userAnswer ? 0 : 1].classList.add('wrong');
+                buttons[question.answer ? 0 : 1].classList.add('correct');
+            }
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < 99) {
+                timeLeft = 120; // Reset χρόνου για την επόμενη ερώτηση
+                showQuestion();
+                startTimer();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function endQuiz() {
+            clearInterval(timer);
+            navigate('results');
+            document.getElementById('score').textContent = `Πέτυχες ${score}/99 απαντήσεις σωστά`;
+            let feedback = '';
+            if (score >= 90) feedback = "Εξαιρετική επίδοση! Είσαι έτοιμος για τις εξετάσεις!";
+            else if (score >= 70) feedback = "Πολύ καλά! Λίγη προσοχή ακόμα και είσαι έτοιμος!";
+            else if (score >= 50) feedback = "Μπορείς καλύτερα! Δοκίμασε ξανά!";
+            else feedback = "Χρειάζεται περισσότερη εξάσκηση! Ξαναδοκίμασε!";
+            document.getElementById('feedback').textContent = feedback;
+        }
+    </script>
+</body>
+</html>
