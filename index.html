@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Προσθήκη Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline';">
     <title>MyStudyPlan - Πανελλήνιες</title>
     <style>
         body {
@@ -257,6 +259,15 @@
         let timeLeft = 120; // 2 λεπτά ανά ερώτηση
         let shuffledQuestions = [];
 
+        // Fisher-Yates Shuffle Αλγόριθμος
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+            return array;
+        }
+
         function navigate(screen) {
             console.log("Navigating to: " + screen); // Debugging
             document.querySelectorAll('.container > div').forEach(div => div.style.display = 'none');
@@ -268,7 +279,7 @@
         }
 
         function startQuiz() {
-            shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+            shuffledQuestions = shuffleArray([...questions]); // Χρησιμοποιούμε Fisher-Yates shuffle
             currentQuestionIndex = 0;
             score = 0;
             timeLeft = 120;
