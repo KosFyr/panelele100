@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Προσθήκη Content Security Policy -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline';">
     <title>MyStudyPlan - Πανελλήνιες</title>
     <style>
         body {
@@ -151,7 +149,7 @@
 
     <script>
         const questions = [
-            { text: "Κάθε κατακόρυφη ευθεία έχει το πολύ ένα κοινό σημείο με τη γραφική παράσταση μιας συνάρτησης f.", answer: true },
+             { text: "Κάθε κατακόρυφη ευθεία έχει το πολύ ένα κοινό σημείο με τη γραφική παράσταση μιας συνάρτησης f.", answer: true },
             { text: "Η γραφική παράσταση της συνάρτησης -f είναι συμμετρική, ως προς τον άξονα x'x, της γραφικής παράστασης της f.", answer: true },
             { text: "Η γραφική παράσταση της συνάρτησης f(x) = √|x|, x ∈ ℝ έχει άξονα συμμετρίας τον y'y.", answer: true },
             { text: "Αν f, g είναι δύο συναρτήσεις με πεδία ορισμού A, B αντίστοιχα, τότε η g∘f ορίζεται αν f(A) ∩ B ≠ ∅.", answer: true },
@@ -259,7 +257,7 @@
         let timeLeft = 120; // 2 λεπτά ανά ερώτηση
         let shuffledQuestions = [];
 
-        // Fisher-Yates Shuffle Αλγόριθμος
+        // Fisher-Yates Shuffle για να αποφύγουμε το πρόβλημα της CSP
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -279,7 +277,7 @@
         }
 
         function startQuiz() {
-            shuffledQuestions = shuffleArray([...questions]); // Χρησιμοποιούμε Fisher-Yates shuffle
+            shuffledQuestions = shuffleArray([...questions]); // Χρησιμοποιούμε Fisher-Yates αντί για .sort()
             currentQuestionIndex = 0;
             score = 0;
             timeLeft = 120;
