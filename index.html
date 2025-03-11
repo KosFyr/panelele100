@@ -116,10 +116,18 @@
             padding: 8px 15px;
             font-size: 14px;
         }
+        #loading-screen {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="container" id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen">
+            <h1>Φόρτωση...</h1>
+        </div>
+
         <!-- Login Screen -->
         <div id="login-screen" style="display: none;">
             <h1>Σύνδεση</h1>
@@ -211,16 +219,23 @@
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyJS1zwF_STX0xFTMbSyGJEbU0QH3V5r0",
-            authDomain: "mystudyplan-abc73.firebaseapp.com",
-            projectId: "mystudyplan-abc73",
-            storageBucket: "mystudyplan-abc73.firebasestorage.app",
+            authDomain: "mystudyplan-a0c73.firebaseapp.com",
+            projectId: "mystudyplan-a0c73",
+            storageBucket: "mystudyplan-a0c73.firebasestorage.app",
             messagingSenderId: "681843739955",
             appId: "1:681843739955:web:e1b2d046bedf04ae1391196"
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        let auth;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            alert("Σφάλμα κατά την αρχικοποίηση του Firebase: " + error.message);
+        }
 
         // Register function
         function register() {
@@ -230,7 +245,7 @@
                 alert('Παρακαλώ συμπληρώστε όλα τα πεδία!');
                 return;
             }
-            firebase.auth().createUserWithEmailAndPassword(email, password)
+            auth.createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     alert('Εγγραφή επιτυχής! Μπορείς να συνδεθείς.');
                     navigate('login-screen');
@@ -248,7 +263,7 @@
                 alert('Παρακαλώ συμπληρώστε όλα τα πεδία!');
                 return;
             }
-            firebase.auth().signInWithEmailAndPassword(email, password)
+            auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     alert('Σύνδεση επιτυχής!');
                     navigate('home');
@@ -260,7 +275,7 @@
 
         // Logout function
         function logout() {
-            firebase.auth().signOut().then(() => {
+            auth.signOut().then(() => {
                 alert('Αποσύνδεση επιτυχής!');
                 navigate('login-screen');
             }).catch((error) => {
@@ -269,15 +284,28 @@
         }
 
         // Check auth state
-        window.onload = function() {
-            firebase.auth().onAuthStateChanged((user) => {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!auth) {
+                console.error("Firebase Authentication not initialized");
+                alert("Σφάλμα: Το Firebase Authentication δεν έχει αρχικοποιηθεί.");
+                navigate('login-screen');
+                return;
+            }
+
+            auth.onAuthStateChanged((user) => {
                 if (!user) {
+                    console.log("No user logged in");
                     navigate('login-screen');
                 } else {
+                    console.log("User logged in:", user.email);
                     navigate('home');
                 }
+            }, (error) => {
+                console.error("Auth state change error:", error);
+                alert("Σφάλμα κατά την ελέγχο κατάστασης σύνδεσης: " + error.message);
+                navigate('login-screen');
             });
-        };
+        });
 
         const questions = [
             { text: "Κάθε κατακόρυφη ευθεία έχει το πολύ ένα κοινό σημείο με τη γραφική παράσταση μιας συνάρτησης f.", answer: true },
@@ -348,7 +376,6 @@
             { text: "(συνx)' = ημx, x ∈ ℝ", answer: false },
             { text: "Ισχύει ο τύπος (x³)' = 3x⁻¹, για κάθε x ∈ ℝ", answer: false },
             { text: "Για κάθε x ∈ ℝ1=R-{x | συνx = 0} ισχύει: (εφx)' = -1/(συν²x)", answer: false },
-            { text: "(σφx)' = 1/(ημ²x), x ∈ ℝ - {x | ημx ≠ 0}", answer: false },
             { text: "Αν f(x) = ln|x| για κάθε x ≠ 0, τότε f'(x) = 1/|x| για κάθε x ≠ 0.", answer: false },
             { text: "(ln|x|)' = -1/x, για κάθε x < 0", answer: false },
             { text: "Αν f(x) = α^x, α > 0, τότε ισχύει (α^x)' = xα^(x-1).", answer: false },
@@ -381,7 +408,7 @@
             { text: "Η γραφική παράσταση μιας συνάρτησης f: ℝ → ℝ μπορεί να τέμνει μια ασύμπτωτη της.", answer: true }
         ];
 
-        let currentScreen = 'login-screen';
+        let currentScreen = 'loading-screen';
         let currentQuestionIndex = 0;
         let score = 0;
         let timer;
@@ -398,116 +425,164 @@
         }
 
         function navigate(screen) {
-            document.querySelectorAll('.container > div').forEach(div => div.style.display = 'none');
-            document.getElementById(screen === 'home' ? 'home-screen' : 
-                                   screen === 'math' ? 'math-menu' : 
-                                   screen === 'quiz-options' ? 'quiz-options' : 
-                                   screen === 'units' ? 'units' : 
-                                   screen === 'quiz' ? 'quiz-screen' : 
-                                   screen === 'results' ? 'results-screen' : 
-                                   screen === 'login-screen' ? 'login-screen' : 
-                                   screen === 'register-screen' ? 'register-screen' : 'coming-soon').style.display = 'block';
-            currentScreen = screen;
+            try {
+                document.querySelectorAll('.container > div').forEach(div => div.style.display = 'none');
+                const targetScreen = document.getElementById(screen === 'home' ? 'home-screen' : 
+                                                             screen === 'math' ? 'math-menu' : 
+                                                             screen === 'quiz-options' ? 'quiz-options' : 
+                                                             screen === 'units' ? 'units' : 
+                                                             screen === 'quiz' ? 'quiz-screen' : 
+                                                             screen === 'results' ? 'results-screen' : 
+                                                             screen === 'login-screen' ? 'login-screen' : 
+                                                             screen === 'register-screen' ? 'register-screen' : 
+                                                             screen === 'loading-screen' ? 'loading-screen' : 'coming-soon');
+                if (targetScreen) {
+                    targetScreen.style.display = 'block';
+                    currentScreen = screen;
+                    console.log("Navigated to:", screen);
+                } else {
+                    console.error("Screen not found:", screen);
+                    alert("Σφάλμα: Η οθόνη " + screen + " δεν βρέθηκε!");
+                }
 
-            if (screen !== 'quiz') {
-                clearInterval(timer);
+                if (screen !== 'quiz') {
+                    clearInterval(timer);
+                }
+            } catch (error) {
+                console.error("Navigation error:", error);
+                alert("Σφάλμα κατά την πλοήγηση: " + error.message);
             }
         }
 
         function startRandomQuiz() {
-            shuffledQuestions = shuffleArray([...questions]).slice(0, 10);
-            totalQuestions = 10;
-            currentQuestionIndex = 0;
-            score = 0;
-            timeLeft = 120;
-            navigate('quiz');
-            showQuestion();
-            startTimer();
+            try {
+                shuffledQuestions = shuffleArray([...questions]).slice(0, 10);
+                totalQuestions = 10;
+                currentQuestionIndex = 0;
+                score = 0;
+                timeLeft = 120;
+                navigate('quiz');
+                showQuestion();
+                startTimer();
+            } catch (error) {
+                console.error("Error starting random quiz:", error);
+                alert("Σφάλμα κατά την έναρξη του quiz: " + error.message);
+            }
         }
 
         function startUnitQuiz(unit) {
-            if (unit === 'functions') {
-                shuffledQuestions = shuffleArray(questions.slice(0, 25));
-                totalQuestions = 25;
-            } else if (unit === 'limits') {
-                shuffledQuestions = shuffleArray(questions.slice(25, 51));
-                totalQuestions = 26;
-            } else if (unit === 'continuity') {
-                shuffledQuestions = shuffleArray(questions.slice(51, 61));
-                totalQuestions = 10;
-            } else if (unit === 'derivatives') {
-                shuffledQuestions = shuffleArray(questions.slice(61, 99));
-                totalQuestions = 38;
+            try {
+                if (unit === 'functions') {
+                    shuffledQuestions = shuffleArray(questions.slice(0, 25));
+                    totalQuestions = 25;
+                } else if (unit === 'limits') {
+                    shuffledQuestions = shuffleArray(questions.slice(25, 51));
+                    totalQuestions = 26;
+                } else if (unit === 'continuity') {
+                    shuffledQuestions = shuffleArray(questions.slice(51, 61));
+                    totalQuestions = 10;
+                } else if (unit === 'derivatives') {
+                    shuffledQuestions = shuffleArray(questions.slice(61, 99));
+                    totalQuestions = 38;
+                }
+                currentQuestionIndex = 0;
+                score = 0;
+                timeLeft = 120;
+                navigate('quiz');
+                showQuestion();
+                startTimer();
+            } catch (error) {
+                console.error("Error starting unit quiz:", error);
+                alert("Σφάλμα κατά την έναρξη του quiz: " + error.message);
             }
-            currentQuestionIndex = 0;
-            score = 0;
-            timeLeft = 120;
-            navigate('quiz');
-            showQuestion();
-            startTimer();
         }
 
         function startTimer() {
-            clearInterval(timer);
-            timer = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timer').textContent = `Χρόνος: ${timeLeft} δευτ.`;
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    nextQuestion();
-                }
-            }, 1000);
+            try {
+                clearInterval(timer);
+                timer = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById('timer').textContent = `Χρόνος: ${timeLeft} δευτ.`;
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        nextQuestion();
+                    }
+                }, 1000);
+            } catch (error) {
+                console.error("Error in timer:", error);
+                alert("Σφάλμα στον χρονοδιακόπτη: " + error.message);
+            }
         }
 
         function showQuestion() {
-            const question = shuffledQuestions[currentQuestionIndex];
-            document.getElementById('question').textContent = question.text;
-            document.getElementById('progress').textContent = `Ερώτηση ${currentQuestionIndex + 1}/${totalQuestions}`;
-            document.getElementById('next-btn').style.display = 'none';
-            const buttons = document.querySelectorAll('.answer-btn');
-            buttons.forEach(btn => {
-                btn.disabled = false;
-                btn.classList.remove('correct', 'wrong');
-            });
+            try {
+                const question = shuffledQuestions[currentQuestionIndex];
+                document.getElementById('question').textContent = question.text;
+                document.getElementById('progress').textContent = `Ερώτηση ${currentQuestionIndex + 1}/${totalQuestions}`;
+                document.getElementById('next-btn').style.display = 'none';
+                const buttons = document.querySelectorAll('.answer-btn');
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.classList.remove('correct', 'wrong');
+                });
+            } catch (error) {
+                console.error("Error showing question:", error);
+                alert("Σφάλμα κατά την εμφάνιση ερώτησης: " + error.message);
+            }
         }
 
         function answer(userAnswer) {
-            clearInterval(timer);
-            const question = shuffledQuestions[currentQuestionIndex];
-            const buttons = document.querySelectorAll('.answer-btn');
-            buttons.forEach(btn => btn.disabled = true);
-            if (userAnswer === question.answer) {
-                buttons[userAnswer ? 0 : 1].classList.add('correct');
-                score++;
-            } else {
-                buttons[userAnswer ? 0 : 1].classList.add('wrong');
-                buttons[question.answer ? 0 : 1].classList.add('correct');
+            try {
+                clearInterval(timer);
+                const question = shuffledQuestions[currentQuestionIndex];
+                const buttons = document.querySelectorAll('.answer-btn');
+                buttons.forEach(btn => btn.disabled = true);
+                if (userAnswer === question.answer) {
+                    buttons[userAnswer ? 0 : 1].classList.add('correct');
+                    score++;
+                } else {
+                    buttons[userAnswer ? 0 : 1].classList.add('wrong');
+                    buttons[question.answer ? 0 : 1].classList.add('correct');
+                }
+                document.getElementById('next-btn').style.display = 'block';
+            } catch (error) {
+                console.error("Error in answer:", error);
+                alert("Σφάλμα κατά την απάντηση: " + error.message);
             }
-            document.getElementById('next-btn').style.display = 'block';
         }
 
         function nextQuestion() {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < totalQuestions) {
-                timeLeft = 120;
-                showQuestion();
-                startTimer();
-            } else {
-                endQuiz();
+            try {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < totalQuestions) {
+                    timeLeft = 120;
+                    showQuestion();
+                    startTimer();
+                } else {
+                    endQuiz();
+                }
+            } catch (error) {
+                console.error("Error in next question:", error);
+                alert("Σφάλμα κατά την επόμενη ερώτηση: " + error.message);
             }
         }
 
         function endQuiz() {
-            clearInterval(timer);
-            navigate('results');
-            document.getElementById('score').textContent = `Πέτυχες ${score}/${totalQuestions} απαντήσεις σωστά`;
-            let feedback = '';
-            const percentage = (score / totalQuestions) * 100;
-            if (percentage >= 90) feedback = "Εξαιρετική επίδοση! Είσαι έτοιμος για τις εξετάσεις!";
-            else if (percentage >= 70) feedback = "Πολύ καλά! Λίγη προσοχή ακόμα και είσαι έτοιμος!";
-            else if (percentage >= 50) feedback = "Μπορείς καλύτερα! Δοκίμασε ξανά!";
-            else feedback = "Χρειάζεται περισσότερη εξάσκηση! Ξαναδοκίμασε!";
-            document.getElementById('feedback').textContent = feedback;
+            try {
+                clearInterval(timer);
+                navigate('results');
+                document.getElementById('score').textContent = `Πέτυχες ${score}/${totalQuestions} απαντήσεις σωστά`;
+                let feedback = '';
+                const percentage = (score / totalQuestions) * 100;
+                if (percentage >= 90) feedback = "Εξαιρετική επίδοση! Είσαι έτοιμος για τις εξετάσεις!";
+                else if (percentage >= 70) feedback = "Πολύ καλά! Λίγη προσοχή ακόμα και είσαι έτοιμος!";
+                else if (percentage >= 50) feedback = "Μπορείς καλύτερα! Δοκίμασε ξανά!";
+                else feedback = "Χρειάζεται περισσότερη εξάσκηση! Ξαναδοκίμασε!";
+                document.getElementById('feedback').textContent = feedback;
+            } catch (error) {
+                console.error("Error ending quiz:", error);
+                alert("Σφάλμα κατά την ολοκλήρωση του quiz: " + error.message);
+            }
         }
     </script>
 </body>
