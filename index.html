@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyStudyPlan - Πανελλήνιες</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -63,6 +59,14 @@
             transform: none;
             box-shadow: none;
         }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
         #timer {
             color: #ffcc00;
             font-size: 20px;
@@ -112,79 +116,36 @@
             padding: 8px 15px;
             font-size: 14px;
         }
-        input, select {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        #error-message {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .auth-btn {
-            background: #ffcc00;
-            color: #333;
-        }
-        #user-info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: #4a00e0;
-            font-size: 14px;
-        }
-        /* Νέο CSS για το κουμπί "Σύνδεση/Εγγραφή" πάνω δεξιά */
-        #home-screen .auth-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            margin: 0;
-        }
     </style>
 </head>
 <body>
     <div class="container" id="app">
-        <!-- Πληροφορίες Χρήστη -->
-        <div id="user-info"></div>
-
-        <!-- Αρχικό Μενού -->
-        <div id="home-screen">
-            <h1>MyStudyPlan</h1>
-            <button onclick="navigate('login')" class="auth-btn">Σύνδεση/Εγγραφή</button>
-            <button onclick="navigate('math')" id="math-btn" style="display: none;">Μαθηματικά</button>
-            <button class="coming-soon-btn" onclick="navigate('aoth')">ΑΟΘ</button>
-            <button class="coming-soon-btn" onclick="navigate('aepp')">ΑΕΠΠ</button>
-        </div>
-
-        <!-- Οθόνη Σύνδεσης -->
+        <!-- Login Screen -->
         <div id="login-screen" style="display: none;">
             <h1>Σύνδεση</h1>
-            <input type="email" id="login-email" placeholder="Email" required>
-            <input type="password" id="login-password" placeholder="Κωδικός" required>
+            <input type="email" id="email-login" placeholder="Email" required>
+            <input type="password" id="password-login" placeholder="Κωδικός" required>
             <button onclick="login()">Σύνδεση</button>
-            <button onclick="navigate('register')">Δεν έχεις λογαριασμό; Εγγραφή</button>
+            <button onclick="navigate('register-screen')">Δημιουργία Λογαριασμού</button>
             <button onclick="navigate('home')">Επιστροφή</button>
-            <p id="error-message"></p>
         </div>
 
-        <!-- Οθόνη Εγγραφής -->
+        <!-- Register Screen -->
         <div id="register-screen" style="display: none;">
             <h1>Εγγραφή</h1>
-            <input type="email" id="register-email" placeholder="Email" required>
-            <input type="password" id="register-password" placeholder="Κωδικός" required>
-            <input type="text" id="register-username" placeholder="Όνομα Χρήστη" required>
-            <select id="register-role" required>
-                <option value="" disabled selected>Επίλεξε ρόλο</option>
-                <option value="student">Μαθητής</option>
-                <option value="teacher">Καθηγητής</option>
-            </select>
+            <input type="email" id="email-register" placeholder="Email" required>
+            <input type="password" id="password-register" placeholder="Κωδικός" required>
             <button onclick="register()">Εγγραφή</button>
-            <button onclick="navigate('login')">Έχεις λογαριασμό; Σύνδεση</button>
-            <button onclick="navigate('home')">Επιστροφή</button>
-            <p id="error-message"></p>
+            <button onclick="navigate('login-screen')">Επιστροφή στη Σύνδεση</button>
+        </div>
+
+        <!-- Αρχικό Μενού -->
+        <div id="home-screen" style="display: none;">
+            <h1>MyStudyPlan</h1>
+            <button onclick="navigate('math')">Μαθηματικά</button>
+            <button class="coming-soon-btn" onclick="navigate('aoth')">ΑΟΘ</button>
+            <button class="coming-soon-btn" onclick="navigate('aepp')">ΑΕΠΠ</button>
+            <button onclick="logout()">Αποσύνδεση</button>
         </div>
 
         <!-- Μενού Μαθηματικών -->
@@ -193,7 +154,6 @@
             <button onclick="navigate('quiz-options')">Σωστό / Λάθος</button>
             <button class="coming-soon-btn" onclick="navigate('theorems')">Θεωρήματα</button>
             <button class="coming-soon-btn" onclick="navigate('proofs')">Αποδείξεις</button>
-            <button onclick="logout()">Αποσύνδεση</button>
             <button onclick="navigate('home')">Επιστροφή</button>
         </div>
 
@@ -243,23 +203,82 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js"></script>
+
     <script>
-        // Firebase Configuration
+        // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyAJsIzwf_5T0xxfTM8y9EgJqGUQH3V5r0",
-            authDomain: "mystudyplan-a0c73.firebaseapp.com",
-            projectId: "mystudyplan-a0c73",
-            storageBucket: "mystudyplan-a0c73.appspot.com",
+            apiKey: "AIzaSyJS1zwF_STX0xFTMbSyGJEbU0QH3V5r0",
+            authDomain: "mystudyplan-abc73.firebaseapp.com",
+            projectId: "mystudyplan-abc73",
+            storageBucket: "mystudyplan-abc73.firebasestorage.app",
             messagingSenderId: "681843739955",
-            appId: "1:681843739955:web:e12d40eef04ae1391196"
+            appId: "1:681843739955:web:e1b2d046bedf04ae1391196"
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.firestore();
 
-        // Quiz Variables
+        // Register function
+        function register() {
+            const email = document.getElementById('email-register').value;
+            const password = document.getElementById('password-register').value;
+            if (!email || !password) {
+                alert('Παρακαλώ συμπληρώστε όλα τα πεδία!');
+                return;
+            }
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    alert('Εγγραφή επιτυχής! Μπορείς να συνδεθείς.');
+                    navigate('login-screen');
+                })
+                .catch((error) => {
+                    alert('Σφάλμα: ' + error.message);
+                });
+        }
+
+        // Login function
+        function login() {
+            const email = document.getElementById('email-login').value;
+            const password = document.getElementById('password-login').value;
+            if (!email || !password) {
+                alert('Παρακαλώ συμπληρώστε όλα τα πεδία!');
+                return;
+            }
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    alert('Σύνδεση επιτυχής!');
+                    navigate('home');
+                })
+                .catch((error) => {
+                    alert('Σφάλμα: ' + error.message);
+                });
+        }
+
+        // Logout function
+        function logout() {
+            firebase.auth().signOut().then(() => {
+                alert('Αποσύνδεση επιτυχής!');
+                navigate('login-screen');
+            }).catch((error) => {
+                alert('Σφάλμα κατά την αποσύνδεση: ' + error.message);
+            });
+        }
+
+        // Check auth state
+        window.onload = function() {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (!user) {
+                    navigate('login-screen');
+                } else {
+                    navigate('home');
+                }
+            });
+        };
+
         const questions = [
             { text: "Κάθε κατακόρυφη ευθεία έχει το πολύ ένα κοινό σημείο με τη γραφική παράσταση μιας συνάρτησης f.", answer: true },
             { text: "Η γραφική παράσταση της συνάρτησης -f είναι συμμετρική, ως προς τον άξονα x'x, της γραφικής παράστασης της f.", answer: true },
@@ -343,7 +362,7 @@
             { text: "Έστω μια συνάρτηση f συνεχής σε ένα διάστημα Δ και παραγωγίσιμη στο εσωτερικό του Δ. Αν η f είναι γνησίως αύξουσα στο Δ, τότε η παράγωγός της δεν είναι υποχρεωτικά θετική στο εσωτερικό του Δ.", answer: true },
             { text: "Έστω μια συνάρτηση f, η οποία είναι συνεχής σε ένα διάστημα Δ. Αν f'(x) > 0 σε κάθε εσωτερικό σημείο x του Δ, τότε η f είναι γνησίως φθίνουσα σε όλο το Δ.", answer: false },
             { text: "Έστω f μια συνάρτηση συνεχής σ’ ένα διάστημα Δ και παραγωγίσιμη σε κάθε εσωτερικό x του Δ. Αν η συνάρτηση f είναι γνησίως αύξουσα στο Δ τότε f'(x) > 0 σε κάθε εσωτερικό σημείο x του Δ.", answer: false },
-            { text: "Έστω μια συνάρτηση f συνεχής σε ένα διάστημα Δ και παραγωγίσιμη σε κάθε εσωτερικό σημείο του Δ. Αν η συνάρτηση f είναι γνησίως φθίνουσα στο Δ, τότε η παράγωγός της είναι υποχρεωτικά αρνητική στο εσωτερικό του Δ.", answer: false },
+            { text: "Έστω συνάρτηση f συνεχής σε ένα διάστημα Δ και παραγωγίσιμη σε κάθε εσωτερικό σημείο του Δ. Αν η συνάρτηση f είναι γνησίως φθίνουσα στο Δ, τότε η παράγωγός της είναι υποχρεωτικά αρνητική στο εσωτερικό του Δ.", answer: false },
             { text: "Έστω μια συνάρτηση f ορισμένη σε ένα διάστημα Δ και x₀ ένα εσωτερικό σημείο του Δ. Αν η f είναι παραγωγίσιμη στο x₀ και f'(x₀) = 0, τότε η f παρουσιάζει υποχρεωτικά τοπικό ακρότατο στο x₀.", answer: false },
             { text: "Έστω συνάρτηση f ορισμένη και παραγωγίσιμη στο διάστημα [α, β] και σημείο x₀ ∈ [α, β] στο οποίο η f παρουσιάζει τοπικό μέγιστο. Τότε πάντα ισχύει ότι f'(x₀) = 0.", answer: false },
             { text: "Για κάθε συνάρτηση f: ℝ → ℝ που είναι παραγωγίσιμη και δεν παρουσιάζει ακρότατα, ισχύει f'(x) ≠ 0 για κάθε x ∈ ℝ.", answer: false },
@@ -362,118 +381,14 @@
             { text: "Η γραφική παράσταση μιας συνάρτησης f: ℝ → ℝ μπορεί να τέμνει μια ασύμπτωτη της.", answer: true }
         ];
 
-        let currentScreen = 'home';
+        let currentScreen = 'login-screen';
         let currentQuestionIndex = 0;
         let score = 0;
         let timer;
         let timeLeft = 120;
         let shuffledQuestions = [];
         let totalQuestions = 0;
-        let currentUser = null;
 
-        // Authentication State Listener
-        auth.onAuthStateChanged(user => {
-            currentUser = user;
-            const userInfo = document.getElementById('user-info');
-            const mathBtn = document.getElementById('math-btn');
-            if (user) {
-                db.collection('users').doc(user.uid).get().then(doc => {
-                    if (doc.exists) {
-                        const data = doc.data();
-                        userInfo.textContent = `Καλώς ήρθες, ${data.username}! (${data.role})`;
-                        mathBtn.style.display = 'block';
-                    }
-                });
-            } else {
-                userInfo.textContent = '';
-                mathBtn.style.display = 'none';
-            }
-        });
-
-        // Register Function
-        function register() {
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const username = document.getElementById('register-username').value;
-            const role = document.getElementById('register-role').value;
-            const errorMessage = document.getElementById('error-message');
-
-            if (!email || !password || !username || !role) {
-                errorMessage.textContent = 'Παρακαλώ συμπληρώστε όλα τα πεδία';
-                return;
-            }
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    const user = userCredential.user;
-                    user.sendEmailVerification();
-                    return db.collection('users').doc(user.uid).set({
-                        email: email,
-                        username: username,
-                        role: role
-                    });
-                })
-                .then(() => {
-                    errorMessage.textContent = 'Εγγραφή επιτυχής! Ελέγξτε το email σας για επιβεβαίωση.';
-                    setTimeout(() => navigate('login'), 3000);
-                })
-                .catch(error => {
-                    errorMessage.textContent = error.message;
-                });
-        }
-
-        // Login Function
-        function login() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const errorMessage = document.getElementById('error-message');
-
-            if (!email || !password) {
-                errorMessage.textContent = 'Παρακαλώ συμπληρώστε όλα τα πεδία';
-                return;
-            }
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    const user = userCredential.user;
-                    if (!user.emailVerified) {
-                        auth.signOut();
-                        errorMessage.textContent = 'Παρακαλώ επιβεβαιώστε το email σας πριν συνδεθείτε.';
-                    } else {
-                        navigate('home');
-                    }
-                })
-                .catch(error => {
-                    errorMessage.textContent = error.message;
-                });
-        }
-
-        // Logout Function
-        function logout() {
-            auth.signOut().then(() => {
-                navigate('home');
-            });
-        }
-
-        // Navigation Function
-        function navigate(screen) {
-            document.querySelectorAll('.container > div').forEach(div => div.style.display = 'none');
-            document.getElementById(screen === 'home' ? 'home-screen' : 
-                                   screen === 'login' ? 'login-screen' : 
-                                   screen === 'register' ? 'register-screen' : 
-                                   screen === 'math' ? 'math-menu' : 
-                                   screen === 'quiz-options' ? 'quiz-options' : 
-                                   screen === 'units' ? 'units' : 
-                                   screen === 'quiz' ? 'quiz-screen' : 
-                                   screen === 'results' ? 'results-screen' : 'coming-soon').style.display = 'block';
-            currentScreen = screen;
-
-            if (screen !== 'quiz') {
-                clearInterval(timer);
-            }
-        }
-
-        // Fisher-Yates Shuffle
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -482,11 +397,24 @@
             return array;
         }
 
-        function startRandomQuiz() {
-            if (!currentUser) {
-                navigate('login');
-                return;
+        function navigate(screen) {
+            document.querySelectorAll('.container > div').forEach(div => div.style.display = 'none');
+            document.getElementById(screen === 'home' ? 'home-screen' : 
+                                   screen === 'math' ? 'math-menu' : 
+                                   screen === 'quiz-options' ? 'quiz-options' : 
+                                   screen === 'units' ? 'units' : 
+                                   screen === 'quiz' ? 'quiz-screen' : 
+                                   screen === 'results' ? 'results-screen' : 
+                                   screen === 'login-screen' ? 'login-screen' : 
+                                   screen === 'register-screen' ? 'register-screen' : 'coming-soon').style.display = 'block';
+            currentScreen = screen;
+
+            if (screen !== 'quiz') {
+                clearInterval(timer);
             }
+        }
+
+        function startRandomQuiz() {
             shuffledQuestions = shuffleArray([...questions]).slice(0, 10);
             totalQuestions = 10;
             currentQuestionIndex = 0;
@@ -498,10 +426,6 @@
         }
 
         function startUnitQuiz(unit) {
-            if (!currentUser) {
-                navigate('login');
-                return;
-            }
             if (unit === 'functions') {
                 shuffledQuestions = shuffleArray(questions.slice(0, 25));
                 totalQuestions = 25;
