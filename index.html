@@ -23,6 +23,7 @@
             width: 450px;
             text-align: center;
             animation: fadeIn 0.5s ease-in;
+            position: relative;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
@@ -99,6 +100,14 @@
             margin: 20px 0;
             font-weight: bold;
         }
+        #back-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4444;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -114,10 +123,28 @@
         <!-- Μενού Μαθηματικών -->
         <div id="math-menu" style="display: none;">
             <h1>Μαθηματικά</h1>
-            <button onclick="startQuiz()">Σωστό / Λάθος</button>
+            <button onclick="navigate('quiz-options')">Σωστό / Λάθος</button>
             <button class="coming-soon-btn" onclick="navigate('theorems')">Θεωρήματα</button>
             <button class="coming-soon-btn" onclick="navigate('proofs')">Αποδείξεις</button>
             <button onclick="navigate('home')">Επιστροφή</button>
+        </div>
+
+        <!-- Επιλογές Quiz -->
+        <div id="quiz-options" style="display: none;">
+            <h1>Σωστό / Λάθος</h1>
+            <button onclick="startRandomQuiz()">Τεστ 10 Ερωτήσεων</button>
+            <button onclick="navigate('units')">Τεστ ανά Ενότητα</button>
+            <button onclick="navigate('math')">Επιστροφή</button>
+        </div>
+
+        <!-- Ενότητες -->
+        <div id="units" style="display: none;">
+            <h1>Ενότητες</h1>
+            <button onclick="startUnitQuiz('functions')">Συναρτήσεις</button>
+            <button onclick="startUnitQuiz('limits')">Όρια</button>
+            <button onclick="startUnitQuiz('continuity')">Θεωρήματα Συνέχειας</button>
+            <button onclick="startUnitQuiz('derivatives')">Παράγωγος</button>
+            <button onclick="navigate('quiz-options')">Επιστροφή</button>
         </div>
 
         <!-- Coming Soon Σελίδα -->
@@ -129,6 +156,7 @@
         <!-- Quiz Σωστό / Λάθος -->
         <div id="quiz-screen" style="display: none;">
             <h1>Σωστό / Λάθος</h1>
+            <button id="back-btn" onclick="navigate('quiz-options')">Επιστροφή</button>
             <div id="timer">Χρόνος: 120 δευτ.</div>
             <div id="progress"></div>
             <p id="question"></p>
@@ -142,14 +170,14 @@
             <h1>Αποτελέσματα</h1>
             <p id="score"></p>
             <p id="feedback"></p>
-            <button onclick="startQuiz()">Παίξε Ξανά</button>
+            <button onclick="navigate('quiz-options')">Παίξε Ξανά</button>
             <button onclick="navigate('home')">Επιστροφή στο Αρχικό Μενού</button>
         </div>
     </div>
 
     <script>
         const questions = [
-             { text: "Κάθε κατακόρυφη ευθεία έχει το πολύ ένα κοινό σημείο με τη γραφική παράσταση μιας συνάρτησης f.", answer: true },
+            { text: "Κάθε κατακόρυφη ευθεία έχει το πολύ ένα κοινό σημείο με τη γραφική παράσταση μιας συνάρτησης f.", answer: true },
             { text: "Η γραφική παράσταση της συνάρτησης -f είναι συμμετρική, ως προς τον άξονα x'x, της γραφικής παράστασης της f.", answer: true },
             { text: "Η γραφική παράσταση της συνάρτησης f(x) = √|x|, x ∈ ℝ έχει άξονα συμμετρίας τον y'y.", answer: true },
             { text: "Αν f, g είναι δύο συναρτήσεις με πεδία ορισμού A, B αντίστοιχα, τότε η g∘f ορίζεται αν f(A) ∩ B ≠ ∅.", answer: true },
@@ -247,7 +275,7 @@
             { text: "Έστω μια συνάρτηση f συνεχής σε ένα διάστημα Δ και δύο φορές παραγωγίσιμη στο εσωτερικό του Δ. Αν η f είναι κυρτή στο Δ, τότε υποχρεωτικά f''(x) > 0 για κάθε εσωτερικό σημείο του Δ.", answer: false },
             { text: "Έστω μια συνάρτηση f παραγωγίσιμη σ’ ένα διάστημα (α, β) με εξαίρεση ίσως ένα σημείο του x₀. Αν η f είναι κυρτή στο (α, x₀) και κοίλη στο (x₀, β) ή αντιστρόφως, τότε το σημείο A(x₀, f(x₀)) είναι υποχρεωτικά σημείο καμπής της γραφικής παράστασης της f.", answer: false },
             { text: "Υπάρχει πολυωνυμική συνάρτηση βαθμού ν ≥ 2, η οποία έχει ασύμπτωτη.", answer: false },
-            { text: "Η γραφική παράσταση μιας συνάρτησης f: ℝ → ℝ μπορεί να τέμνει μια ασύμπτωτή της.", answer: true }
+            { text: "Η γραφική παράσταση μιας συνάρτησης f: ℝ → ℝ μπορεί να τέμνει μια ασύμπτωτη της.", answer: true }
         ];
 
         let currentScreen = 'home';
@@ -256,28 +284,58 @@
         let timer;
         let timeLeft = 120; // 2 λεπτά ανά ερώτηση
         let shuffledQuestions = [];
+        let totalQuestions = 0;
 
-        // Fisher-Yates Shuffle για να αποφύγουμε το πρόβλημα της CSP
+        // Fisher-Yates Shuffle
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+                [array[i], array[j]] = [array[j], array[i]];
             }
             return array;
         }
 
         function navigate(screen) {
-            console.log("Navigating to: " + screen); // Debugging
             document.querySelectorAll('.container > div').forEach(div => div.style.display = 'none');
             document.getElementById(screen === 'home' ? 'home-screen' : 
                                    screen === 'math' ? 'math-menu' : 
+                                   screen === 'quiz-options' ? 'quiz-options' : 
+                                   screen === 'units' ? 'units' : 
                                    screen === 'quiz' ? 'quiz-screen' : 
                                    screen === 'results' ? 'results-screen' : 'coming-soon').style.display = 'block';
             currentScreen = screen;
+
+            // Σταματάμε τον χρονοδιακόπτη αν επιστρέφουμε από το quiz
+            if (screen !== 'quiz') {
+                clearInterval(timer);
+            }
         }
 
-        function startQuiz() {
-            shuffledQuestions = shuffleArray([...questions]); // Χρησιμοποιούμε Fisher-Yates αντί για .sort()
+        function startRandomQuiz() {
+            shuffledQuestions = shuffleArray([...questions]).slice(0, 10); // 10 τυχαίες ερωτήσεις
+            totalQuestions = 10;
+            currentQuestionIndex = 0;
+            score = 0;
+            timeLeft = 120;
+            navigate('quiz');
+            showQuestion();
+            startTimer();
+        }
+
+        function startUnitQuiz(unit) {
+            if (unit === 'functions') {
+                shuffledQuestions = shuffleArray(questions.slice(0, 25)); // 0-24
+                totalQuestions = 25;
+            } else if (unit === 'limits') {
+                shuffledQuestions = shuffleArray(questions.slice(25, 51)); // 25-50
+                totalQuestions = 26;
+            } else if (unit === 'continuity') {
+                shuffledQuestions = shuffleArray(questions.slice(51, 61)); // 51-60
+                totalQuestions = 10;
+            } else if (unit === 'derivatives') {
+                shuffledQuestions = shuffleArray(questions.slice(61, 99)); // 61-98
+                totalQuestions = 38;
+            }
             currentQuestionIndex = 0;
             score = 0;
             timeLeft = 120;
@@ -293,7 +351,7 @@
                 document.getElementById('timer').textContent = `Χρόνος: ${timeLeft} δευτ.`;
                 if (timeLeft <= 0) {
                     clearInterval(timer);
-                    nextQuestion(); // Προχωρά στην επόμενη ερώτηση αν τελειώσει ο χρόνος
+                    nextQuestion();
                 }
             }, 1000);
         }
@@ -301,7 +359,7 @@
         function showQuestion() {
             const question = shuffledQuestions[currentQuestionIndex];
             document.getElementById('question').textContent = question.text;
-            document.getElementById('progress').textContent = `Ερώτηση ${currentQuestionIndex + 1}/99`;
+            document.getElementById('progress').textContent = `Ερώτηση ${currentQuestionIndex + 1}/${totalQuestions}`;
             document.getElementById('next-btn').style.display = 'none';
             const buttons = document.querySelectorAll('.answer-btn');
             buttons.forEach(btn => {
@@ -311,7 +369,7 @@
         }
 
         function answer(userAnswer) {
-            clearInterval(timer); // Σταματά ο χρόνος όταν απαντά
+            clearInterval(timer);
             const question = shuffledQuestions[currentQuestionIndex];
             const buttons = document.querySelectorAll('.answer-btn');
             buttons.forEach(btn => btn.disabled = true);
@@ -327,8 +385,8 @@
 
         function nextQuestion() {
             currentQuestionIndex++;
-            if (currentQuestionIndex < 99) {
-                timeLeft = 120; // Reset χρόνου για την επόμενη ερώτηση
+            if (currentQuestionIndex < totalQuestions) {
+                timeLeft = 120;
                 showQuestion();
                 startTimer();
             } else {
@@ -339,11 +397,12 @@
         function endQuiz() {
             clearInterval(timer);
             navigate('results');
-            document.getElementById('score').textContent = `Πέτυχες ${score}/99 απαντήσεις σωστά`;
+            document.getElementById('score').textContent = `Πέτυχες ${score}/${totalQuestions} απαντήσεις σωστά`;
             let feedback = '';
-            if (score >= 90) feedback = "Εξαιρετική επίδοση! Είσαι έτοιμος για τις εξετάσεις!";
-            else if (score >= 70) feedback = "Πολύ καλά! Λίγη προσοχή ακόμα και είσαι έτοιμος!";
-            else if (score >= 50) feedback = "Μπορείς καλύτερα! Δοκίμασε ξανά!";
+            const percentage = (score / totalQuestions) * 100;
+            if (percentage >= 90) feedback = "Εξαιρετική επίδοση! Είσαι έτοιμος για τις εξετάσεις!";
+            else if (percentage >= 70) feedback = "Πολύ καλά! Λίγη προσοχή ακόμα και είσαι έτοιμος!";
+            else if (percentage >= 50) feedback = "Μπορείς καλύτερα! Δοκίμασε ξανά!";
             else feedback = "Χρειάζεται περισσότερη εξάσκηση! Ξαναδοκίμασε!";
             document.getElementById('feedback').textContent = feedback;
         }
