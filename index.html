@@ -115,6 +115,35 @@
             background-color: #ffcc00;
             font-weight: bold;
         }
+        .audio-player {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .audio-player button {
+            padding: 10px;
+            font-size: 18px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+            position: relative;
+            cursor: pointer;
+        }
+        .progress {
+            height: 100%;
+            background: #4a00e0;
+            width: 0%;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -202,10 +231,13 @@
                 <span class="sentence">Η Ελλάδα βρισκόταν ακόμα στην Ανατολή, εκεί όπου η βιομηχανία ήταν άγνωστη, οι μεταφορές διεξάγονταν με πρωτόγονα μέσα και οι καλλιέργειες γίνονταν με μεθόδους οι οποίες ήταν γνωστές -οι περισσότερες- από την εποχή του Ησιόδου.</span>
             </p>
             <audio id="history-audio" src="ElevenLabs_2025-03-12T16_54_40_Rachel_pre_s50_sb75_se0_b_m2.mp3"></audio>
-            <div>
-                <button onclick="playPauseAudio()">Play/Pause</button>
-                <button onclick="rewindAudio()">-10 δευτ.</button>
-                <button onclick="forwardAudio()">+10 δευτ.</button>
+            <div class="audio-player">
+                <button onclick="rewindAudio()">⏪</button>
+                <button id="play-pause-btn" onclick="playPauseAudio()">▶️</button>
+                <button onclick="forwardAudio()">⏩</button>
+            </div>
+            <div class="progress-bar" onclick="seekAudio(event)">
+                <div class="progress" id="progress-bar"></div>
             </div>
             <button onclick="navigate('history-menu')">Επιστροφή</button>
         </div>
@@ -449,42 +481,49 @@
 
         function playPauseAudio() {
             const audio = document.getElementById('history-audio');
+            const playPauseBtn = document.getElementById('play-pause-btn');
             if (audio.paused) {
                 audio.play();
+                playPauseBtn.textContent = '⏸️';
             } else {
                 audio.pause();
+                playPauseBtn.textContent = '▶️';
             }
         }
 
         function rewindAudio() {
             const audio = document.getElementById('history-audio');
-            audio.currentTime = Math.max(0, audio.currentTime - 10);
+            audio.currentTime = Math.max(0, audio.currentTime - 15);
             highlightSentence(audio.currentTime);
+            updateProgressBar();
         }
 
         function forwardAudio() {
             const audio = document.getElementById('history-audio');
-            audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
+            audio.currentTime = Math.min(audio.duration, audio.currentTime + 15);
             highlightSentence(audio.currentTime);
+            updateProgressBar();
         }
 
         function setupAudioSync() {
             const audio = document.getElementById('history-audio');
             const sentences = document.querySelectorAll('.sentence');
-            // Υποθέτουμε ότι η διάρκεια του ήχου κατανέμεται ομοιόμορφα στις 6 προτάσεις
             const sentenceDuration = audio.duration / sentences.length;
 
             audio.ontimeupdate = () => {
                 const currentTime = audio.currentTime;
                 highlightSentence(currentTime, sentenceDuration);
+                updateProgressBar();
             };
 
             audio.onended = () => {
                 sentences.forEach(s => s.classList.remove('highlight'));
+                document.getElementById('play-pause-btn').textContent = '▶️';
+                updateProgressBar();
             };
         }
 
-        function highlightSentence(currentTime, sentenceDuration = 10) {
+        function highlightSentence(currentTime, sentenceDuration) {
             const sentences = document.querySelectorAll('.sentence');
             const currentIndex = Math.floor(currentTime / sentenceDuration);
             
@@ -495,6 +534,25 @@
                     sentence.classList.remove('highlight');
                 }
             });
+        }
+
+        function updateProgressBar() {
+            const audio = document.getElementById('history-audio');
+            const progress = document.getElementById('progress-bar');
+            const percentage = (audio.currentTime / audio.duration) * 100;
+            progress.style.width = `${percentage}%`;
+        }
+
+        function seekAudio(event) {
+            const audio = document.getElementById('history-audio');
+            const progressBar = document.querySelector('.progress-bar');
+            const rect = progressBar.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const width = rect.width;
+            const newTime = (clickX / width) * audio.duration;
+            audio.currentTime = newTime;
+            highlightSentence(newTime);
+            updateProgressBar();
         }
     </script>
 </body>
