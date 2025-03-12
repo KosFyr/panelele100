@@ -120,29 +120,54 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 20px;
         }
         .audio-player button {
-            padding: 10px;
-            font-size: 18px;
-            width: 40px;
+            background: #ffffff;
+            border: 2px solid #000000;
+            width: 80px;
             height: 40px;
-            border-radius: 50%;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            font-size: 32px;
+            color: #000000;
+        }
+        .audio-player button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background-color: #f0f0f0;
         }
         .progress-bar {
             width: 100%;
-            height: 5px;
-            background: #ddd;
+            height: 8px;
+            background: #e0e0e0;
             border-radius: 5px;
-            margin-top: 10px;
-            position: relative;
+            margin: 10px 0;
             cursor: pointer;
         }
         .progress {
             height: 100%;
-            background: #4a00e0;
+            background: linear-gradient(90deg, #6b48ff, #8e2de2);
             width: 0%;
             border-radius: 5px;
+            transition: width 0.1s linear;
+        }
+        #time-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            display: none;
+            z-index: 10;
         }
     </style>
 </head>
@@ -232,14 +257,15 @@
             </p>
             <audio id="history-audio" src="ElevenLabs_2025-03-12T16_54_40_Rachel_pre_s50_sb75_se0_b_m2.mp3"></audio>
             <div class="audio-player">
-                <button onclick="rewindAudio()">⏪</button>
+                <button id="rewind-btn" onclick="rewindAudio()">⏪</button>
                 <button id="play-pause-btn" onclick="playPauseAudio()">▶️</button>
-                <button onclick="forwardAudio()">⏩</button>
+                <button id="forward-btn" onclick="forwardAudio()">⏩</button>
             </div>
             <div class="progress-bar" onclick="seekAudio(event)">
                 <div class="progress" id="progress-bar"></div>
             </div>
             <button onclick="navigate('history-menu')">Επιστροφή</button>
+            <div id="time-indicator"></div>
         </div>
     </div>
 
@@ -496,6 +522,7 @@
             audio.currentTime = Math.max(0, audio.currentTime - 15);
             highlightSentence(audio.currentTime);
             updateProgressBar();
+            showTimeIndicator("Πήγε πίσω 15 δευτ.");
         }
 
         function forwardAudio() {
@@ -503,6 +530,7 @@
             audio.currentTime = Math.min(audio.duration, audio.currentTime + 15);
             highlightSentence(audio.currentTime);
             updateProgressBar();
+            showTimeIndicator("Πήγε μπροστά 15 δευτ.");
         }
 
         function setupAudioSync() {
@@ -553,6 +581,15 @@
             audio.currentTime = newTime;
             highlightSentence(newTime);
             updateProgressBar();
+        }
+
+        function showTimeIndicator(message) {
+            const indicator = document.getElementById('time-indicator');
+            indicator.textContent = message;
+            indicator.style.display = 'block';
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, 1500);
         }
     </script>
 </body>
