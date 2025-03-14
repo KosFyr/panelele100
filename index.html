@@ -6,19 +6,19 @@
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background-color: #FFFFFF; /* Λευκό */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            color: #333;
+            color: #4A704A; /* Σκούρο πράσινο για κείμενο */
         }
         .container {
-            background-color: #fff;
+            background-color: #F5F5F5; /* Απαλό γκρι για εσωτερικό */
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             width: 450px;
             text-align: center;
             animation: fadeIn 0.5s ease-in;
@@ -28,15 +28,23 @@
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
         h1 {
-            color: #4a00e0;
+            color: #4A704A;
             font-size: 28px;
             margin-bottom: 25px;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
         button {
-            background: linear-gradient(90deg, #8e2de2, #4a00e0);
-            color: white;
+            background: linear-gradient(90deg, #4A704A, #355E3B);
+            color: #FFFFFF;
             border: none;
             padding: 12px 25px;
             margin: 8px;
@@ -47,10 +55,11 @@
         }
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(53, 94, 59, 0.5);
+            background: #355E3B;
         }
         .coming-soon-btn {
-            background: #d3d3d3;
+            background: #B0B0B0;
             color: #666;
             cursor: not-allowed;
         }
@@ -59,17 +68,17 @@
             box-shadow: none;
         }
         #timer {
-            color: #ffcc00;
+            color: #666;
             font-size: 20px;
             font-weight: bold;
             margin: 15px 0;
-            background: rgba(255, 204, 0, 0.1);
+            background: rgba(240, 240, 240, 0.5);
             padding: 5px 10px;
             border-radius: 5px;
         }
         #progress {
             font-size: 18px;
-            color: #4a00e0;
+            color: #4A704A;
             margin-bottom: 15px;
         }
         .answer-btn {
@@ -77,12 +86,12 @@
             margin: 10px;
         }
         .correct {
-            background: #28a745 !important;
-            box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+            background: #66BB6A !important; /* Φωτεινό πράσινο για σωστή απάντηση */
+            box-shadow: 0 0 10px rgba(102, 187, 106, 0.5);
         }
         .wrong {
-            background: #dc3545 !important;
-            box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+            background: #E57373 !important; /* Απαλό κόκκινο για λάθος απάντηση */
+            box-shadow: 0 0 10px rgba(229, 115, 115, 0.5);
         }
         #advertisements, #question {
             font-size: 16px;
@@ -90,14 +99,15 @@
             line-height: 1.4;
             text-align: left;
             white-space: pre-line;
+            color: #666;
         }
         #next-btn, #submit-btn {
-            background: #ffcc00;
-            color: #333;
+            background: #B0B0B0;
+            color: #4A704A;
         }
         #feedback {
             font-size: 20px;
-            color: #4a00e0;
+            color: #4A704A;
             margin: 20px 0;
             font-weight: bold;
         }
@@ -105,16 +115,18 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            background: #ff4444;
+            background: #B0B0B0;
             padding: 8px 15px;
             font-size: 14px;
+            color: #4A704A;
         }
         #history-audio {
             display: none;
         }
         .highlight {
-            background-color: #ffcc00;
+            background-color: #4A704A;
             font-weight: bold;
+            color: #FFFFFF;
         }
         .audio-player {
             margin: 20px 0;
@@ -124,10 +136,8 @@
             gap: 20px;
         }
         .audio-player button { 
-            background: transparent !important; 
-            border: none !important;
-            background: #ffffff;
-            border: 2px solid #000000;
+            background: #F5F5F5 !important; 
+            border: 2px solid #4A704A;
             width: 80px;
             height: 40px;
             border-radius: 8px;
@@ -137,24 +147,24 @@
             justify-content: center;
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
             font-size: 32px;
-            color: #000000;
+            color: #4A704A;
         }
         .audio-player button:hover {
             transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            background-color: #f0f0f0;
+            box-shadow: 0 5px 15px rgba(74, 112, 74, 0.3);
+            background-color: #E0E0E0;
         }
         .progress-bar {
             width: 100%;
             height: 8px;
-            background: #e0e0e0;
+            background: #B0B0B0;
             border-radius: 5px;
             margin: 10px 0;
             cursor: pointer;
         }
         .progress {
             height: 100%;
-            background: linear-gradient(90deg, #6b48ff, #8e2de2);
+            background: linear-gradient(90deg, #4A704A, #355E3B);
             width: 0%;
             border-radius: 5px;
             transition: width 0.1s linear;
@@ -164,8 +174,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
+            background-color: rgba(240, 240, 240, 0.8);
+            color: #666;
             padding: 10px 15px;
             border-radius: 5px;
             font-size: 16px;
@@ -182,6 +192,7 @@
             display: flex;
             align-items: center;
             margin: 5px 0;
+            color: #666;
         }
         #answer-options input[type="checkbox"] {
             transform: scale(1.5);
@@ -193,18 +204,23 @@
             margin-bottom: 15px;
         }
         .correct-tick {
-            color: #28a745;
+            color: #355E3B;
             font-size: 20px;
             margin-left: 5px;
             content: "✓";
         }
         .wrong-answer {
-            color: #dc3545;
+            color: #E57373;
         }
     </style>
 </head>
 <body>
     <div class="container" id="app">
+        <!-- Header με Λογότυπο -->
+        <div class="header">
+            <img src="mystudyplan-logo.png" alt="MyStudyPlan Logo">
+        </div>
+
         <!-- Αρχικό Μενού -->
         <div id="home-screen">
             <h1>MyStudyPlan</h1>
@@ -404,7 +420,7 @@
             { text: "Αν μια συνάρτηση f παρουσιάζει (ολικό) μέγιστο, τότε αυτό θα είναι το μεγαλύτερο από τα τοπικά της μέγιστα.", answer: true },
             { text: "Ένα τοπικό μέγιστο μιας συνάρτησης f μπορεί να είναι μικρότερο από ένα τοπικό ελάχιστο της f.", answer: true },
             { text: "Τα εσωτερικά σημεία του διαστήματος Δ, στα οποία η f δεν παραγωγίζεται ή η παράγωγός της είναι ίση με το 0, λέγονται κρίσιμα σημεία της f στο διάστημα Δ.", answer: true },
-            { text: "Έστω μία συνάρτηση f παραγωγίσιμη σ' ένα διάστημα (α, β), με εξαίρεση ίσως ένα σημείο του x₀, στο οποίο όμως η f είναι συνεχής. Αν f'(x) > 0 στο (α, x₀) και f'(x) < 0 στο (x₀, β), τότε το x₀ είναι τοπικό ελάχιστο της f.", answer: false },
+            { text: "Έστω μία συνάρτηση f παραγωγίσιμη σ’ ένα διάστημα (α, β), με εξαίρεση ίσως ένα σημείο του x₀, στο οποίο όμως η f είναι συνεχής. Αν f'(x) > 0 στο (α, x₀) και f'(x) < 0 στο (x₀, β), τότε το x₀ είναι τοπικό ελάχιστο της f.", answer: false },
             { text: "Έστω μία συνάρτηση f συνεχής σε ένα διάστημα Δ και δύο φορές παραγωγίσιμη στο εσωτερικό του Δ. Αν f''(x) > 0 για κάθε εσωτερικό σημείο x του Δ, τότε η f είναι κυρτή στο Δ.", answer: true },
             { text: "Αν μια συνάρτηση f είναι κυρτή σε ένα διάστημα Δ, τότε η εφαπτομένη της γραφικής παράστασης της f σε κάθε σημείο του Δ βρίσκεται «πάνω» από τη γραφική της παράσταση.", answer: false },
             { text: "Αν μια συνάρτηση f είναι κοίλη σ’ ένα διάστημα Δ, τότε η εφαπτομένη της γραφικής παράστασης της f σε κάθε σημείο του Δ βρίσκεται κάτω από τη γραφική παράσταση, με εξαίρεση το σημείο επαφής.", answer: false },
@@ -483,7 +499,7 @@ F) Science and Maths lessons given. Experienced tutor, specialising in helping s
             if (currentQuizType === 'math') {
                 navigate('quiz-options');
             } else if (currentQuizType === 'english') {
-                navigate('home'); // Αλλαγή από 'english-menu' σε 'home' για άμεση επιστροφή
+                navigate('home');
             }
         }
 
