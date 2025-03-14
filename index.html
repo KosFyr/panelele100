@@ -6,16 +6,16 @@
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: #FFFFFF; /* Λευκό */
+            background: linear-gradient(135deg, #1A3C34, #2A5A4A, #1A3C34);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            color: #4A704A; /* Σκούρο πράσινο για κείμενο */
+            color: #4A704A;
         }
         .container {
-            background-color: #F5F5F5; /* Απαλό γκρι για εσωτερικό */
+            background-color: #F5F5F5;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
@@ -43,7 +43,7 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
         button {
-            background: linear-gradient(180deg, #1a3c34, #4a704a);
+            background: linear-gradient(90deg, #4A704A, #355E3B);
             color: #FFFFFF;
             border: none;
             padding: 12px 25px;
@@ -84,13 +84,26 @@
         .answer-btn {
             width: 120px;
             margin: 10px;
+            background: linear-gradient(90deg, #4A704A, #355E3B);
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(53, 94, 59, 0.5);
+            background: #355E3B;
         }
         .correct {
-            background: #66BB6A !important; /* Φωτεινό πράσινο για σωστή απάντηση */
+            background: #66BB6A !important;
             box-shadow: 0 0 10px rgba(102, 187, 106, 0.5);
         }
         .wrong {
-            background: #E57373 !important; /* Απαλό κόκκινο για λάθος απάντηση */
+            background: #E57373 !important;
             box-shadow: 0 0 10px rgba(229, 115, 115, 0.5);
         }
         #advertisements, #question {
@@ -342,7 +355,7 @@
             { text: "Μία συνάρτηση f λέγεται γνησίως αύξουσα σε ένα διάστημα Δ του πεδίου ορισμού της, αν υπάρχουν x₁, x₂ ∈ Δ με x₁ < x₂ τέτοια, ώστε f(x₁) < f(x₂).", answer: false },
             { text: "Κάθε συνάρτηση, που είναι 1-1 στο πεδίο ορισμού της, είναι γνησίως μονότονη.", answer: false },
             { text: "Μια συνάρτηση f: A → ℝ λέγεται συνάρτηση 1-1, όταν για οποιαδήποτα x₁, x₂ ∈ A ισχύει η συνεπαγωγή: αν x₁ ≠ x₂, τότε f(x₁) ≠ f(x₂).", answer: true },
-            { text: "Μία συνάρτηση f: A → ℝ είναι συνάρτηση 1-1, αν και μόνο αν για οποιαδήποτα x₁, x₂ ∈ A ισχύει η συνεπαγωγή: αν x₁ = x₂, τότε f(x₁) = f(x₂).", answer: false },
+            { text: "Μία συνάρτηση f: A → ℝ είναι συνάρτηση 1-1, αν και μόνο αν για οποιαδήποτε x₁, x₂ ∈ A ισχύει η συνεπαγωγή: αν x₁ = x₂, τότε f(x₁) = f(x₂).", answer: false },
             { text: "Αν μια συνάρτηση f είναι γνησίως μονότονη σε ένα διάστημα Δ, τότε είναι και 1-1 στο διάστημα αυτό.", answer: true },
             { text: "Υπάρχουν συναρτήσεις που είναι 1-1, αλλά δεν είναι γνησίως μονότονες.", answer: true },
             { text: "Μια συνάρτηση f είναι 1-1, αν και μόνο αν για κάθε στοιχείο y του συνόλου τιμών της η εξίσωση f(x) = y έχει ακριβώς μία λύση ως προς x.", answer: true },
@@ -412,7 +425,7 @@
             { text: "Έστω μια συνάρτηση f συνεχής σε ένα διάστημα Δ και παραγωγίσιμη στο εσωτερικό του Δ. Αν η f είναι γνησίως αύξουσα στο Δ, τότε η παράγωγός της δεν είναι υποχρεωτικά θετική στο εσωτερικό του Δ.", answer: true },
             { text: "Έστω μια συνάρτηση f, η οποία είναι συνεχής σε ένα διάστημα Δ. Αν f'(x) > 0 σε κάθε εσωτερικό σημείο x του Δ, τότε η f είναι γνησίως φθίνουσα σε όλο το Δ.", answer: false },
             { text: "Έστω f μια συνάρτηση συνεχής σ’ ένα διάστημα Δ και παραγωγίσιμη σε κάθε εσωτερικό x του Δ. Αν η συνάρτηση f είναι γνησίως αύξουσα στο Δ τότε f'(x) > 0 σε κάθε εσωτερικό σημείο x του Δ.", answer: false },
-            { text: "Έστω συνάρτηση f συνεχής σε ένα διάστημα Δ και παραγωγίσιμη σε κάθε εσωτερικό σημείο του Δ. Αν η συνάρτηση f είναι γνησίως φθίνουσα στο Δ, τότε η παράγωγός της είναι υποχρεωτικά αρνητική στο εσωτερικό του Δ.", answer: false },
+            { text: "Έστω μια συνάρτηση f συνεχής σε ένα διάστημα Δ και παραγωγίσιμη σε κάθε εσωτερικό σημείο του Δ. Αν η συνάρτηση f είναι γνησίως φθίνουσα στο Δ, τότε η παράγωγός της είναι υποχρεωτικά αρνητική στο εσωτερικό του Δ.", answer: false },
             { text: "Έστω μια συνάρτηση f ορισμένη σε ένα διάστημα Δ και x₀ ένα εσωτερικό σημείο του Δ. Αν η f είναι παραγωγίσιμη στο x₀ και f'(x₀) = 0, τότε η f παρουσιάζει υποχρεωτικά τοπικό ακρότατο στο x₀.", answer: false },
             { text: "Έστω συνάρτηση f ορισμένη και παραγωγίσιμη στο διάστημα [α, β] και σημείο x₀ ∈ [α, β] στο οποίο η f παρουσιάζει τοπικό μέγιστο. Τότε πάντα ισχύει ότι f'(x₀) = 0.", answer: false },
             { text: "Για κάθε συνάρτηση f: ℝ → ℝ που είναι παραγωγίσιμη και δεν παρουσιάζει ακρότατα, ισχύει f'(x) ≠ 0 για κάθε x ∈ ℝ.", answer: false },
@@ -452,7 +465,7 @@ F) Science and Maths lessons given. Experienced tutor, specialising in helping s
         let timeLeft = 120;
         let shuffledQuestions = [];
         let totalQuestions = 0;
-        let currentQuizType = 'math'; // 'math' or 'english'
+        let currentQuizType = 'math';
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -542,7 +555,7 @@ F) Science and Maths lessons given. Experienced tutor, specialising in helping s
 
         function startEnglishTest1() {
             currentQuizType = 'english';
-            shuffledQuestions = [...englishTest1Questions]; // No shuffle for fixed order
+            shuffledQuestions = [...englishTest1Questions];
             totalQuestions = 4;
             currentQuestionIndex = 0;
             score = 0;
@@ -671,24 +684,52 @@ F) Science and Maths lessons given. Experienced tutor, specialising in helping s
             document.getElementById('score').textContent = `Πέτυχες ${score}/${totalQuestions} απαντήσεις σωστά`;
             let feedback = '';
             const percentage = (score / totalQuestions) * 100;
-            if (percentage >= 90) feedback = "Εξαιρετική επίδοση! Είσαι έτοιμος για τις εξετάσεις!";
-            else if (percentage >= 70) feedback = "Πολύ καλά! Λίγη προσοχή ακόμα και είσαι έτοιμος!";
-            else if (percentage >= 50) feedback = "Μπορείς καλύτερα! Δοκίμασε ξανά!";
-            else feedback = "Χρειάζεται περισσότερη εξάσκηση! Ξαναδοκίμασε!";
+            if (percentage >= 90) feedback = "Εξαιρετική επίδοση! Συνέχισε έτσι!";
+            else if (percentage >= 70) feedback = "Πολύ καλή προσπάθεια! Με λίγη εξάσκηση θα γίνεις ακόμα καλύτερος!";
+            else if (percentage >= 50) feedback = "Καλή προσπάθεια! Χρειάζεσαι λίγο περισσότερη μελέτη.";
+            else feedback = "Μην απογοητεύεσαι! Με περισσότερη εξάσκηση θα τα καταφέρεις!";
             document.getElementById('feedback').textContent = feedback;
+            document.getElementById('play-again-btn').onclick = currentQuizType === 'math' ? startRandomQuiz : startEnglishTest1;
+        }
 
-            // Δυναμική ρύθμιση του κουμπιού "Παίξε Ξανά" ανάλογα με τον τύπο του κουίζ
-            const playAgainBtn = document.getElementById('play-again-btn');
-            if (currentQuizType === 'math') {
-                playAgainBtn.onclick = () => navigate('quiz-options');
-            } else if (currentQuizType === 'english') {
-                playAgainBtn.onclick = () => startEnglishTest1(); // Επανεκκίνηση του Test 1
-            }
+        const audio = document.getElementById('history-audio');
+        const progressBar = document.getElementById('progress-bar');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const timeIndicator = document.getElementById('time-indicator');
+        const sentences = document.querySelectorAll('#intro-text .sentence');
+        let lastHighlightedIndex = -1;
+
+        function setupAudioSync() {
+            const timestamps = [0, 5, 10, 15, 20, 25]; // Παράδειγμα timestamps σε δευτερόλεπτα
+            audio.currentTime = 0;
+            progressBar.style.width = '0%';
+
+            audio.addEventListener('timeupdate', () => {
+                const currentTime = audio.currentTime;
+                const duration = audio.duration;
+                const progressPercent = (currentTime / duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+
+                for (let i = 0; i < timestamps.length; i++) {
+                    if (currentTime >= timestamps[i] && (i === timestamps.length - 1 || currentTime < timestamps[i + 1])) {
+                        if (lastHighlightedIndex !== i) {
+                            sentences.forEach(s => s.classList.remove('highlight'));
+                            sentences[i].classList.add('highlight');
+                            lastHighlightedIndex = i;
+                        }
+                        break;
+                    }
+                }
+            });
+
+            audio.addEventListener('ended', () => {
+                playPauseBtn.textContent = '▶️';
+                sentences.forEach(s => s.classList.remove('highlight'));
+                lastHighlightedIndex = -1;
+            });
         }
 
         function playPauseAudio() {
-            const audio = document.getElementById('history-audio');
-            const playPauseBtn = document.getElementById('play-pause-btn');
             if (audio.paused) {
                 audio.play();
                 playPauseBtn.textContent = '⏸️';
@@ -699,79 +740,27 @@ F) Science and Maths lessons given. Experienced tutor, specialising in helping s
         }
 
         function rewindAudio() {
-            const audio = document.getElementById('history-audio');
-            audio.currentTime = Math.max(0, audio.currentTime - 15);
-            highlightSentence(audio.currentTime);
-            updateProgressBar();
-            showTimeIndicator("Πήγε πίσω 15 δευτ.");
+            audio.currentTime = Math.max(0, audio.currentTime - 10);
         }
 
         function forwardAudio() {
-            const audio = document.getElementById('history-audio');
-            audio.currentTime = Math.min(audio.duration, audio.currentTime + 15);
-            highlightSentence(audio.currentTime);
-            updateProgressBar();
-            showTimeIndicator("Πήγε μπροστά 15 δευτ.");
-        }
-
-        function setupAudioSync() {
-            const audio = document.getElementById('history-audio');
-            const sentences = document.querySelectorAll('.sentence');
-            const sentenceDuration = audio.duration / sentences.length;
-
-            audio.ontimeupdate = () => {
-                const currentTime = audio.currentTime;
-                highlightSentence(currentTime, sentenceDuration);
-                updateProgressBar();
-            };
-
-            audio.onended = () => {
-                sentences.forEach(s => s.classList.remove('highlight'));
-                document.getElementById('play-pause-btn').textContent = '▶️';
-                updateProgressBar();
-            };
-        }
-
-        function highlightSentence(currentTime, sentenceDuration = null) {
-            const sentences = document.querySelectorAll('.sentence');
-            const currentIndex = Math.floor(currentTime / (sentenceDuration || 10));
-            
-            sentences.forEach((sentence, index) => {
-                if (index === currentIndex) {
-                    sentence.classList.add('highlight');
-                } else {
-                    sentence.classList.remove('highlight');
-                }
-            });
-        }
-
-        function updateProgressBar() {
-            const audio = document.getElementById('history-audio');
-            const progress = document.getElementById('progress-bar');
-            const percentage = (audio.currentTime / audio.duration) * 100;
-            progress.style.width = `${percentage}%`;
+            audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
         }
 
         function seekAudio(event) {
-            const audio = document.getElementById('history-audio');
-            const progressBar = document.querySelector('.progress-bar');
+            const progressBar = event.currentTarget;
             const rect = progressBar.getBoundingClientRect();
             const clickX = event.clientX - rect.left;
             const width = rect.width;
-            const newTime = (clickX / width) * audio.duration;
-            audio.currentTime = newTime;
-            highlightSentence(newTime);
-            updateProgressBar();
+            const seekTime = (clickX / width) * audio.duration;
+            audio.currentTime = seekTime;
         }
 
-        function showTimeIndicator(message) {
-            const indicator = document.getElementById('time-indicator');
-            indicator.textContent = message;
-            indicator.style.display = 'block';
-            setTimeout(() => {
-                indicator.style.display = 'none';
-            }, 1500);
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'91ff42378a8ebd00',t:'MTc0MTkwNzk5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
