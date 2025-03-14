@@ -503,20 +503,22 @@ F) Science and Maths lessons given. Experienced tutor, specialising in helping s
         }
 
         function goBack() {
-            const audio = document.getElementById('history-audio');
-            if (audio && !audio.paused) {
-                audio.pause();
-                document.getElementById('play-pause-btn').textContent = '▶️';
-            }
-            clearInterval(timer);
-            if (currentScreen === 'history-unit1') {
+    const audio = document.getElementById('history-audio');
+    if (audio && !audio.paused) {
+        audio.pause();
+        document.getElementById('play-pause-btn').textContent = '▶️';
+    }
+    clearInterval(timer);
+    if (currentScreen === 'history-unit1') {
         navigate('history-menu');
     } else if (currentQuizType === 'math') {
         navigate('quiz-options');
     } else if (currentQuizType === 'english') {
         navigate('home');
-            }
-        }
+    } else {
+        navigate('home'); // Προεπιλεγμένη επιστροφή στο αρχικό μενού αν δεν υπάρχει άλλη περίπτωση
+    }
+}
 
         function startRandomQuiz() {
             currentQuizType = 'math';
