@@ -509,10 +509,12 @@ F) Science and Maths lessons given. Experienced tutor, specialising in helping s
                 document.getElementById('play-pause-btn').textContent = '▶️';
             }
             clearInterval(timer);
-            if (currentQuizType === 'math') {
-                navigate('quiz-options');
-            } else if (currentQuizType === 'english') {
-                navigate('home');
+            if (currentScreen === 'history-unit1') {
+        navigate('history-menu');
+    } else if (currentQuizType === 'math') {
+        navigate('quiz-options');
+    } else if (currentQuizType === 'english') {
+        navigate('home');
             }
         }
 
